@@ -28,7 +28,7 @@ GitHub Actions 自動觸發
 ## 專案結構
 
 ```
-hello-world/
+demo-01-github-pages/
 ├── .github/
 │   └── workflows/
 │       └── deploy.yml   ← GitHub Actions 設定
@@ -99,7 +99,7 @@ jobs:
 
 網址：
 ```
-https://{你的GitHub帳號}.github.io/hello-world/
+https://{你的GitHub帳號}.github.io/demo-01-github-pages/
 ```
 
 每次 push 到 main，網站就會自動更新。

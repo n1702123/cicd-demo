@@ -142,12 +142,12 @@ steps:
 
 | Action | 用途 | 今天用到？ |
 |--------|------|-----------|
-| `actions/checkout@v4` | 把 repo 的程式碼拉下來（幾乎每個 workflow 都需要） | ✅ 兩個 Demo 都用 |
-| `actions/setup-node@v4` | 安裝 Node.js | ✅ 兩個 Demo 都用 |
+| `actions/checkout@v4` / `@v5` | 把 repo 的程式碼拉下來（幾乎每個 workflow 都需要）| ✅ Demo A 用 v4、Demo B 用 v5 |
+| `actions/setup-node@v5` | 安裝 Node.js | ✅ Demo B |
 | `actions/setup-python@v5` | 安裝 Python | ❌ |
 | `actions/cache@v4` | 快取相依套件，加速 CI | `cache: 'npm'` 間接用到 |
-| `docker/login-action@v3` | 登入 Docker Hub | ✅ Demo B |
-| `docker/build-push-action@v5` | Build 並 push Docker image | ✅ Demo B |
+| `docker/login-action@v4` | 登入 Docker Hub | ✅ Demo B |
+| `docker/build-push-action@v6` | Build 並 push Docker image | ✅ Demo B |
 | `peaceiris/actions-gh-pages@v3` | 部署靜態檔案到 GitHub Pages | ✅ Demo A |
 
 ---
