@@ -291,59 +291,6 @@ jobs:
 
 ---
 
-## 完整範例對照
-
-### Demo A：部署到 GitHub Pages
-
-```yaml
-name: Deploy to GitHub Pages
-
-on:
-  push:
-    branches: [main]
-  workflow_dispatch:
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-      - run: npm ci
-      - run: npm run build
-      - uses: peaceiris/actions-gh-pages@v3
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          publish_dir: ./out
-```
-
-### Demo B：三個 Job 串 Pipeline
-
-```yaml
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps: [...]               # checkout + setup-node + npm ci + npm run build
-
-  docker-build-push:
-    needs: test
-    runs-on: ubuntu-latest
-    steps: [...]               # checkout + docker login + docker build-push
-
-  deploy-to-railway:
-    needs: docker-build-push
-    runs-on: ubuntu-latest
-    steps:
-      - run: curl -X POST "${{ secrets.RAILWAY_WEBHOOK_URL }}"
-```
-
----
-
 ## 在 GitHub 上查看結果
 
 Push 之後，可以在以下位置查看 Workflow 執行狀態：
@@ -365,7 +312,3 @@ Push 之後，可以在以下位置查看 Workflow 執行狀態：
 | Runner | 執行 Job 的機器，全新用完即丟 |
 | Secrets | 安全存放敏感資訊 |
 | Permissions | 控制 `GITHUB_TOKEN` 的權限 |
-
-**下一步**：
-- Demo A 只用 GitHub Actions + GitHub Pages → 參考 [04-NextJS-GitHub-Pages.md](04-NextJS-GitHub-Pages.md)
-- Demo B 把 Docker 整合進 GitHub Actions → 參考 [03-Docker整合GitHub-Actions.md](03-Docker整合GitHub-Actions.md) 和 [05-Railway-Docker-Deploy.md](05-Railway-Docker-Deploy.md)
