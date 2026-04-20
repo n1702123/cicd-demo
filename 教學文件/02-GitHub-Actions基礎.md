@@ -1,4 +1,53 @@
+---
+marp: true
+theme: default
+paginate: true
+header: '02 - GitHub Actions 基礎'
+style: |
+  section {
+    font-size: 22px;
+    padding: 50px 60px;
+  }
+  h1 {
+    font-size: 38px;
+  }
+  h2 {
+    font-size: 28px;
+    margin-bottom: 0.4em;
+  }
+  h3 {
+    font-size: 22px;
+  }
+  table {
+    font-size: 17px;
+    margin: 0 auto;
+  }
+  th, td {
+    padding: 6px 10px;
+  }
+  pre, code {
+    font-size: 15px;
+  }
+  pre {
+    line-height: 1.3;
+  }
+  blockquote {
+    font-size: 20px;
+  }
+  section.small {
+    font-size: 18px;
+  }
+  section.small table {
+    font-size: 14px;
+  }
+  section.small pre, section.small code {
+    font-size: 13px;
+  }
+---
+
 # 02 - GitHub Actions 基礎
+
+---
 
 ## 什麼是 GitHub Actions？
 
@@ -9,9 +58,9 @@ GitHub Actions 是 GitHub 內建的 **CI/CD 自動化平台**，讓你可以在 
 
 ---
 
-## 核心概念
+## 核心概念（架構總覽）
 
-### 架構總覽
+<!-- _class: small -->
 
 ```
 ┌─ Repository ────────────────────────────────────┐
@@ -36,7 +85,9 @@ GitHub Actions 是 GitHub 內建的 **CI/CD 自動化平台**，讓你可以在 
 └──────────────────────────────────────────────────┘
 ```
 
-### 關鍵術語
+---
+
+## 核心概念（關鍵術語）
 
 | 術語 | 說明 | 類比 |
 |------|------|------|
@@ -49,9 +100,7 @@ GitHub Actions 是 GitHub 內建的 **CI/CD 自動化平台**，讓你可以在 
 
 ---
 
-## 第一個 Workflow
-
-### 檔案位置
+## 第一個 Workflow：檔案位置
 
 Workflow 檔案必須放在 `.github/workflows/` 目錄下：
 
@@ -65,7 +114,9 @@ my-project/
 └── package.json
 ```
 
-### 最簡單的 Workflow
+---
+
+## 第一個 Workflow：最簡單的範例
 
 ```yaml
 # .github/workflows/hello.yml
@@ -81,22 +132,16 @@ jobs:
         run: echo "Hello, CI/CD!" # 執行的指令
 ```
 
-**逐行解說**：
-
 | 行 | 說明 |
 |-----|------|
 | `name:` | 在 GitHub UI 上顯示的 Workflow 名稱 |
 | `on: [push]` | 當 push 到任何分支時觸發 |
-| `jobs:` | 定義要執行的工作 |
 | `runs-on: ubuntu-latest` | 在 GitHub 提供的 Ubuntu 機器上跑 |
-| `steps:` | 這個 Job 的步驟清單 |
 | `run:` | 要執行的 shell 指令 |
 
 ---
 
 ## 觸發條件（Events）
-
-### 常用觸發事件
 
 ```yaml
 on:
@@ -109,8 +154,6 @@ on:
   workflow_dispatch:             # 手動觸發（在 GitHub UI 上按按鈕）
 ```
 
-### 觸發條件對照表
-
 | 事件 | 說明 | 常見用途 |
 |------|------|----------|
 | `push` | Push 到 repo | CI 測試 / 部署 |
@@ -119,7 +162,7 @@ on:
 | `workflow_dispatch` | 手動觸發 | 按需部署 |
 | `release` | 建立 Release | 正式版本發佈 |
 
-> Demo A 和 Demo B 都同時用了 `push: branches: [main]` + `workflow_dispatch`，這樣既能自動部署，也能在 GitHub UI 手動觸發。
+> Demo A 和 Demo B 都用 `push: branches: [main]` + `workflow_dispatch`。
 
 ---
 
@@ -138,7 +181,11 @@ steps:
     run: npm run build               # 執行 shell 指令
 ```
 
-### 常用的官方 Action
+---
+
+## 常用的官方 Action
+
+<!-- _class: small -->
 
 | Action | 用途 | 今天用到？ |
 |--------|------|-----------|
@@ -152,9 +199,7 @@ steps:
 
 ---
 
-## Jobs 的執行方式
-
-### 平行執行（預設）
+## Jobs 的執行方式：平行執行（預設）
 
 ```yaml
 jobs:
@@ -171,7 +216,9 @@ jobs:
   # test 和 lint 同時跑！
 ```
 
-### 依序執行（needs）
+---
+
+## Jobs 的執行方式：依序執行（needs）
 
 ```yaml
 jobs:
@@ -196,23 +243,23 @@ jobs:
 │ lint │                  ┌──▼───┐
 └──────┘                  │deploy│
 （同時跑）                 └──────┘
-                          （test 先，deploy 後）
 ```
 
 > Demo B 的三個 Job（`test` → `docker-build-push` → `deploy-to-railway`）就是經典的依序執行範例。
 
-### Job 之間不共享檔案
+---
+
+## Job 之間不共享檔案
 
 每個 Job 都在**獨立的 Runner**（全新機器）上執行，所以：
+
 - 檔案不會從前一個 Job 流到下一個
 - 每個 Job 要自己 `checkout`
 - 要跨 Job 傳檔案需要 `actions/upload-artifact` + `actions/download-artifact`
 
 ---
 
-## 環境變數與 Secrets
-
-### 環境變數
+## 環境變數（env）
 
 ```yaml
 jobs:
@@ -230,7 +277,9 @@ jobs:
         run: echo "$MY_VAR"
 ```
 
-### GitHub Secrets
+---
+
+## GitHub Secrets
 
 用來存放 **敏感資訊**（密碼、Token、API Key、Webhook URL），不會出現在 log 中：
 
@@ -249,14 +298,14 @@ steps:
 
 > **重要**：絕對不要把密碼寫在 YAML 檔裡面！一律使用 Secrets。
 
-### 兩種「Token」
+---
+
+## 兩種「Token」與 Permissions
 
 | 類型 | 來源 | 今天的使用情境 |
 |------|------|--------------|
 | **內建 `GITHUB_TOKEN`** | GitHub 每次 Workflow 自動產生 | Demo A：推 `gh-pages` branch |
 | **使用者自訂 Secrets** | 自己到 Settings 設定 | Demo B：Docker Hub 帳密、Railway Webhook |
-
-### Permissions
 
 當你要用 `GITHUB_TOKEN` 做寫入操作，必須宣告 `permissions:`：
 
@@ -285,6 +334,7 @@ jobs:
 | Self-hosted | 自己架設的 Runner（公司內網、GPU 機器等） |
 
 **特性**：
+
 - 每次執行都是**全新、乾淨**的機器（用完即丟）
 - 預裝常用工具（git、docker、node、python、curl...）
 - 免費額度：公開 repo 無限制，私有 repo 每月 2,000 分鐘

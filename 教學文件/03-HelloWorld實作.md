@@ -1,4 +1,50 @@
+---
+marp: true
+theme: default
+paginate: true
+header: '03 - HelloWorld 實作'
+style: |
+  section {
+    font-size: 22px;
+    padding: 50px 60px;
+  }
+  h1 {
+    font-size: 38px;
+  }
+  h2 {
+    font-size: 28px;
+    margin-bottom: 0.4em;
+  }
+  h3 {
+    font-size: 22px;
+  }
+  table {
+    font-size: 17px;
+    margin: 0 auto;
+  }
+  th, td {
+    padding: 6px 10px;
+  }
+  pre, code {
+    font-size: 15px;
+  }
+  pre {
+    line-height: 1.3;
+  }
+  blockquote {
+    font-size: 20px;
+  }
+  section.small {
+    font-size: 18px;
+  }
+  section.small pre, section.small code {
+    font-size: 13px;
+  }
+---
+
 # 03 - 純 HTML Hello World + GitHub Actions + GitHub Pages
+
+---
 
 ## 目標
 
@@ -98,6 +144,7 @@ jobs:
 ## 完成後
 
 網址：
+
 ```
 https://{你的GitHub帳號}.github.io/demo-01-github-pages/
 ```

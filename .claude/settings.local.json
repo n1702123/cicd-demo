@@ -3,7 +3,13 @@
     "allow": [
       "Bash(xxd \"c:/Users/user/Documents/cicd-demo/README.md\")",
       "Bash(xxd \"c:/Users/user/Documents/cicd-demo/demo-01-github-pages/README.md\")",
-      "Bash(xxd \"c:/Users/user/Documents/cicd-demo/demo-02-railway-docker/README.md\")"
+      "Bash(xxd \"c:/Users/user/Documents/cicd-demo/demo-02-railway-docker/README.md\")",
+      "Bash(npx --version)",
+      "Bash(marp --version)",
+      "Bash(marp \"01-CI-CD基礎概念.md\" -o \"01-CI-CD基礎概念.html\")",
+      "Bash(marp \"02-GitHub-Actions基礎.md\" -o \"02-GitHub-Actions基礎.html\")",
+      "Bash(marp \"03-HelloWorld實作.md\" -o \"03-HelloWorld實作.html\")",
+      "Bash(marp \"04-Railway-Docker-Deploy.md\" -o \"04-Railway-Docker-Deploy.html\")"
     ]
   }
 }

@@ -1,4 +1,53 @@
+---
+marp: true
+theme: default
+paginate: true
+header: '04 - Railway Docker Deploy'
+style: |
+  section {
+    font-size: 22px;
+    padding: 50px 60px;
+  }
+  h1 {
+    font-size: 38px;
+  }
+  h2 {
+    font-size: 28px;
+    margin-bottom: 0.4em;
+  }
+  h3 {
+    font-size: 22px;
+  }
+  table {
+    font-size: 17px;
+    margin: 0 auto;
+  }
+  th, td {
+    padding: 6px 10px;
+  }
+  pre, code {
+    font-size: 15px;
+  }
+  pre {
+    line-height: 1.3;
+  }
+  blockquote {
+    font-size: 20px;
+  }
+  section.small {
+    font-size: 18px;
+  }
+  section.small table {
+    font-size: 14px;
+  }
+  section.small pre, section.small code {
+    font-size: 13px;
+  }
+---
+
 # 04 - Node.js + Redis + Docker + GitHub Actions + Railway
+
+---
 
 ## 目標
 
@@ -21,6 +70,8 @@
 ---
 
 ## 整體流程
+
+<!-- _class: small -->
 
 ```
 開發者 push code 到 GitHub
@@ -73,9 +124,7 @@ demo-02-railway-docker/
 
 ---
 
-## 關鍵設定
-
-### server.js（重點）
+## 關鍵設定：server.js
 
 ```js
 import http from 'http'
@@ -92,7 +141,9 @@ const PORT = process.env.PORT ?? 3000
 - 本機開發：`REDIS_URL` 透過 `docker-compose.yml` 指到內建 `redis` service
 - Railway 生產：Railway 的 Redis plugin 會注入 `REDIS_URL`
 
-### Dockerfile（單階段就夠）
+---
+
+## 關鍵設定：Dockerfile（單階段就夠）
 
 ```dockerfile
 FROM node:20-alpine
@@ -111,7 +162,9 @@ CMD ["node", "server.js"]
 
 > **為什麼不用多階段？** 這個 app 沒有編譯步驟（純 Node.js），也沒有 `devDependencies` 要剝離，單階段已經夠小。多階段 Build 的時機是：需要編譯（Next.js / TypeScript）、或有大量 dev-only 工具。
 
-### docker-compose.yml（本機開發）
+---
+
+## 關鍵設定：docker-compose.yml（本機開發）
 
 ```yaml
 services:
@@ -136,6 +189,8 @@ services:
 
 ## 需要設定的 Secrets（共 4 個）
 
+<!-- _class: small -->
+
 到 GitHub repo → Settings → Secrets and variables → Actions，新增：
 
 | Secret 名稱 | 值 | 哪裡取得 |
@@ -149,7 +204,7 @@ services:
 
 ---
 
-## Railway 設定步驟
+## Railway 設定步驟（1-2）
 
 ### 1. 建立 Railway 帳號
 
@@ -162,9 +217,14 @@ New Project → Deploy from Docker Image
 ```
 
 填入 Docker Hub image 名稱：
+
 ```
 你的帳號/hello-world-railway:latest
 ```
+
+---
+
+## Railway 設定步驟（3-5）
 
 ### 3. 加一個 Redis plugin
 
@@ -189,9 +249,9 @@ Railway 會注入 `PORT` 環境變數，`server.js` 已讀取 `process.env.PORT`
 
 ---
 
-## GitHub Actions Workflow 解說
+## GitHub Actions Workflow 解說（Job 1 + 2）
 
-實際檔案：[`.github/workflows/deploy.yml`](../demo-02-railway-docker/.github/workflows/deploy.yml)
+<!-- _class: small -->
 
 ```yaml
 name: Build, Push & Deploy to Railway
@@ -235,7 +295,13 @@ jobs:
           tags: |
             ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-railway:latest
             ${{ secrets.DOCKERHUB_USERNAME }}/hello-world-railway:${{ github.sha }}
+```
 
+---
+
+## GitHub Actions Workflow 解說（Job 3）
+
+```yaml
   # Job 3: 通知 Railway 部署
   deploy-to-railway:
     needs: docker-build-push
