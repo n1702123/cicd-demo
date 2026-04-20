@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hello World - Railway</title>
+  <style>
+    * { box-sizing: border-box; }
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 40px 16px;
+      background: #f8f9fa;
+      min-height: 100vh;
+    }
+    h1 { margin-bottom: 4px; }
+    .subtitle { color: #666; margin-bottom: 32px; font-size: 14px; }
+
+    .counter-box {
+      background: #fff;
+      border-radius: 16px;
+      padding: 32px;
+      display: inline-block;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+      margin-bottom: 24px;
+    }
+    #count {
+      font-size: 80px;
+      font-weight: bold;
+      margin: 0;
+      line-height: 1;
+      transition: transform 0.15s ease, color 0.15s ease;
+    }
+    #count.bump {
+      transform: scale(1.25);
+      color: #2563eb;
+    }
+    .label { color: #888; margin: 8px 0 20px; font-size: 14px; }
+    button {
+      padding: 12px 40px;
+      font-size: 22px;
+      cursor: pointer;
+      border-radius: 10px;
+      border: 2px solid #333;
+      background: #fff;
+      transition: background 0.1s;
+    }
+    button:hover { background: #f0f0f0; }
+
+    /* Info cards */
+    .info-grid {
+      display: inline-grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+      text-align: left;
+      max-width: 540px;
+      width: 100%;
+    }
+    .info-card {
+      background: #fff;
+      border-radius: 10px;
+      padding: 14px 18px;
+      box-shadow: 0 1px 6px rgba(0,0,0,0.07);
+    }
+    .info-card .key { font-size: 11px; color: #999; text-transform: uppercase; letter-spacing: 0.05em; }
+    .info-card .val { font-size: 15px; font-weight: 600; margin-top: 2px; word-break: break-all; }
+    .badge {
+      display: inline-block;
+      padding: 2px 10px;
+      border-radius: 99px;
+      font-size: 13px;
+      font-weight: 600;
+    }
+    .badge.ok  { background: #dcfce7; color: #15803d; }
+    .badge.err { background: #fee2e2; color: #b91c1c; }
+
+    /* Log */
+    .log-box {
+      background: #1e1e2e;
+      border-radius: 12px;
+      padding: 16px;
+      max-width: 540px;
+      width: 100%;
+      text-align: left;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      margin: 0 auto;
+    }
+    .log-title { color: #cdd6f4; font-size: 12px; letter-spacing: 0.08em; margin-bottom: 10px; }
+    #log-list { list-style: none; padding: 0; margin: 0; max-height: 160px; overflow-y: auto; }
+    #log-list li {
+      font-family: monospace;
+      font-size: 13px;
+      color: #a6e3a1;
+      padding: 2px 0;
+      border-bottom: 1px solid #313244;
+    }
+    #log-list li:last-child { border-bottom: none; }
+    #log-list li .ts { color: #6c7086; margin-right: 8px; }
+    #log-list li .arrow { color: #89b4fa; margin: 0 4px; }
+
+    .center { display: flex; flex-direction: column; align-items: center; }
+  </style>
+</head>
+<body>
+  <h1>Hello World!</h1>
+  <p class="subtitle">Node.js + Redis + Docker + GitHub Actions + Railway</p>
+
+  <div class="center">
+    <div class="counter-box">
+      <p id="count">…</p>
+      <p class="label">全域點擊次數（由 Redis 持久化）</p>
+      <button onclick="increment()">+1</button>
+    </div>
+
+    <div class="info-grid" id="info-grid">
+      <div class="info-card"><div class="key">Redis</div><div class="val" id="i-redis">載入中…</div></div>
+      <div class="info-card"><div class="key">Redis 來源</div><div class="val" id="i-redis-url">…</div></div>
+      <div class="info-card"><div class="key">環境</div><div class="val" id="i-env">…</div></div>
+      <div class="info-card"><div class="key">Hostname</div><div class="val" id="i-host">…</div></div>
+    </div>
+
+    <div class="log-box">
+      <div class="log-title">OPERATION LOG</div>
+      <ul id="log-list"><li><span class="ts">--:--:--</span>等待操作…</li></ul>
+    </div>
+  </div>
+
+  <script>
+    async function loadCount() {
+      const res = await fetch('/api/counter')
+      const data = await res.json()
+      document.getElementById('count').textContent = data.count
+    }
+
+    async function increment() {
+      const res = await fetch('/api/counter', { method: 'POST' })
+      const data = await res.json()
+      const el = document.getElementById('count')
+      el.textContent = data.count
+      el.classList.remove('bump')
+      void el.offsetWidth
+      el.classList.add('bump')
+      setTimeout(() => el.classList.remove('bump'), 300)
+      addLog(data.count)
+    }
+
+    function addLog(count) {
+      const ul = document.getElementById('log-list')
+      const li = document.createElement('li')
+      const ts = new Date().toLocaleTimeString('zh-TW', { hour12: false })
+      li.innerHTML = `<span class="ts">${ts}</span>+1<span class="arrow">→</span><strong>${count}</strong> 次`
+      ul.insertBefore(li, ul.firstChild)
+      // keep last 20
+      while (ul.children.length > 20) ul.removeChild(ul.lastChild)
+    }
+
+    async function loadInfo() {
+      try {
+        const res = await fetch('/api/info')
+        const d = await res.json()
+        const statusClass = d.redisStatus === 'connected' ? 'ok' : 'err'
+        document.getElementById('i-redis').innerHTML =
+          `<span class="badge ${statusClass}">${d.redisStatus}</span>`
+        document.getElementById('i-redis-url').textContent = d.redisUrl
+        document.getElementById('i-env').textContent = d.nodeEnv
+        document.getElementById('i-host').textContent = d.hostname
+      } catch {
+        document.getElementById('i-redis').textContent = 'error'
+      }
+    }
+
+    loadCount()
+    loadInfo()
+  </script>
+</body>
+</html>
